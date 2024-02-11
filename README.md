@@ -169,3 +169,51 @@ Also make sure to update the influxdb token
 
 ## Visualizing in Grafana
 
+### Initial grafana setup
+
+- Open http://localhost:3000 to open grafana dashboard
+- Use username `admin` and password `admin`
+- It will ask you to generate a new password, do that
+
+### Adding Influxdb as a datasource
+
+- Click on the top left side (hamburger) -> Go to connections -> Add new connection
+- Search for `Influxdb`
+- Fill in the details like below:
+
+#### Under HTTP
+
+- URL : `http://influxdb2:8086`
+
+#### Under InfluxDB Details
+
+- Organization: Give what you created earlier (I had `Local`)
+- Token : Paste the token you created for telegraf (should be in telegraf.conf)
+- Default bucket : Enter the bucket name (I had `Sensor`)
+- Save & test
+
+If you had all the credentials correct, it should say `datasource is working. 1 buckets found`
+
+![Influxdb datasource](./images/grafana-datasource-influxdb.png)
+
+
+### Creating Grafana dashboards
+
+At this point, you should have sensor data coming into InfluxDB and you should be able to create any dashboard you like. You can start by going to the datasources and doing `explore` to see the available metrics
+
+
+InfluxDB2 uses [Flux](https://docs.influxdata.com/influxdb/cloud/query-data/get-started/) as the query language and in my opinion, it is kinda not my favourite.
+
+But here is a sample query
+
+```
+from(bucket: "Sensors")
+ |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+ |> filter(fn: (r) => r._measurement == "mqtt_consumer" and r._field == "co2")
+ |> aggregateWindow(every: ${interval}, fn: mean)
+
+```
+
+You should be able to create queries as you like.
+
+I have included my full dashboard [HERE](./my-grafana-dashboard/dashboard.json) which you can use as you please. You may import it into your grafana and modify as you need.
