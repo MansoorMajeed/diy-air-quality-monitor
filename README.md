@@ -119,16 +119,53 @@ Checkout [THIS](./mqtt-influxdb-grafana/) directory. The docker-compose.yaml fil
 
 You can run `docker-compose up` from that directory and it should bring everything up.
 
+### Setup Mosquitto
+
+You can use the following commands to create a user and password for mosquitto
+
+```bash
+docker exec -it mqtt5 /bin/sh
+mosquitto_passwd -c /mosquitto/config/pwfile <username>
+chmod 0700 /mosquitto/config/pwfile
+exit
+```
+
+
+#### Test that mosquitto connection works
+
+After installing the `mosquitto` package on Linux (Or refer [THIS](https://mosquitto.org/download/) for other OS)
+
+You can test that it works by first starting a subscriber using
+```bash
+mosquitto_sub -h localhost -t sensors/readings -u <username> -P <the password>
+```
+
+And then publish a message to the same topic
+```bash
+mosquitto_pub -h localhost -t sensors/readings -m "hi" -u <username> -P <the password>
+```
+
+You should see `hi` showing up on the subscriber window
 
 ### Setup InfluxDB
 
-Setup InfluxDB :
+Open `localhost:8086` on your browser. Assuming Docker runs on your local machine, if it is on a different host, open that host's IP address:8086
 
-- Create org, bucket
-- and generate an API token. Follow [HERE](https://docs.influxdata.com/influxdb/v2/admin/tokens/create-token/)
+![Influxdb initial setup](./images/influxdb-step-1.png)
+
+> Take note of the Organization name and Bucket name because we will use this with telegraf
+
+Once that is done:
+- Go to `Load Data` -> `API Tokens` -> `Generate API Token`
+- We will create a custom token that gives read/write access to `Sensors` bucket
+- Generate
+
+![Inflxudb API Generation](./images/influxdb-step-2.png)
 
 ### Setup Telegraf
 
 Ensure `telegraf.conf` is accurate with all the credentials.
 Also make sure to update the influxdb token 
+
+## Visualizing in Grafana
 

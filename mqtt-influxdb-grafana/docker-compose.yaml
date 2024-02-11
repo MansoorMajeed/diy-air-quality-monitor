@@ -8,9 +8,9 @@ services:
       - "1883:1883" #default mqtt port
       - "9001:9001" #default mqtt port for websockets
     volumes:
-      - ./config:/mosquitto/config:rw
-      - ./data:/mosquitto/data:rw
-      - ./log:/mosquitto/log:rw
+      - ./mqtt_config:/mosquitto/config:rw
+      - ./mqtt_data:/mosquitto/data:rw
+      - ./mqtt_log:/mosquitto/log:rw
   influxdb2:
     image: influxdb
     ports:
